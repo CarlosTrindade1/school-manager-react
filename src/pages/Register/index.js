@@ -6,12 +6,14 @@ import { useNavigate } from 'react-router-dom';
 
 import { Container } from '../../styles/GlobalStyles';
 import { Form } from './styled';
+import Loading from '../../components/Loading';
 import axios from '../../services/axios';
 
 export default function Register() {
   const [email, setEmail] = useState('');
   const [nome, setNome] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsloading] = useState(false);
   const navigate = useNavigate();
 
   async function handleSubmit(e) {
@@ -38,25 +40,31 @@ export default function Register() {
 
     if (formErrors) return;
 
+    setIsloading(true);
+
     try {
       await axios.post('/users', {
         nome,
         password,
         email,
       });
-
+      setIsloading(false);
       toast.success('Cadastro realizado com sucesso');
 
       navigate('/login');
     } catch (error) {
+      setIsloading(false);
       // const status = get(error, 'response.status', 0);
       const errors = get(error, 'response.data.errors', []);
+
       errors.map((err) => toast.error(err));
     }
   }
 
   return (
     <Container>
+      <Loading isLoading={isLoading} />
+
       <h1>Crie sua conta</h1>
       {/* eslint-disable-next-line */}
       <Form onSubmit={handleSubmit}>
